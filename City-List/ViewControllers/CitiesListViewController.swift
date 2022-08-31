@@ -19,8 +19,16 @@ class CitiesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        fatchResponse()
+        //DataManager.sharedInstance.deleatAll()
+        if DataManager.sharedInstance.retrieveSavedUsers(from: 0, to: 50)!.count == 0{
+            fatchResponse()
+        }
+        else{
+            self.cities=DataManager.sharedInstance.retrieveSavedUsers(from: 0, to: 50)!
+            self.citiesTableView.reloadData()
+        }
         citiesTableView.register(UINib(nibName: "CityTableViewCell", bundle: nil), forCellReuseIdentifier: "CityTableViewCell")
+        
 
         // Do any additional setup after loading the view.
     }
@@ -43,12 +51,14 @@ class CitiesListViewController: UIViewController {
                 DispatchQueue.main.async {
                     
                     guard let response = response else {return}
-                    //self.cities.append(contentsOf: response)
-                    //self.citiesTableView.reloadData()
+                    DataManager.sharedInstance.saveUserData(response)
                     self.num += 1
                     print(self.num)
-                    if ((response.count) > 0)&&self.num<50 {
+                    if ((response.count) > 0) {
                         self.fatchResponse()
+                    }else{
+                        self.cities=DataManager.sharedInstance.retrieveSavedUsers(from: 0, to: 50)!
+                        self.citiesTableView.reloadData()
                     }
                 }
 
@@ -56,7 +66,6 @@ class CitiesListViewController: UIViewController {
                 print(error.localizedDescription)
             }
         })
-        print("*********************")
         
     }
     func fatchFilterdCitiys(){
@@ -123,15 +132,19 @@ extension CitiesListViewController:UITableViewDelegate,UITableViewDataSource{
             let lastElement = filterCitis.count-1
             if lastElement == indexPath.row{
                 num += 1
-                fatchResponse()
+                cities.append(contentsOf: DataManager.sharedInstance.retrieveSavedUsers(from: cities.count, to: cities.count+10)!)
+                citiesTableView.reloadData()
                 fatchFilterdCitiys()
             }
             
         }else{
-        let lastElement = cities.count-1
+        let lastElement = cities.count-10
         if lastElement == indexPath.row{
             num += 1
-            fatchResponse()
+            cities.append(contentsOf: DataManager.sharedInstance.retrieveSavedUsers(from: cities.count, to: cities.count+10)!)
+            citiesTableView.reloadData()
+            print(1)
+             
         }
        }
     }
