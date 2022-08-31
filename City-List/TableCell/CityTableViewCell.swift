@@ -9,6 +9,7 @@ import UIKit
 
 class CityTableViewCell: UITableViewCell {
     @IBOutlet weak var cityName: UILabel!
+    @IBOutlet weak var mapImage: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

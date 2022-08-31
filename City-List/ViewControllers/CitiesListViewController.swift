@@ -14,7 +14,7 @@ class CitiesListViewController: UIViewController {
     var filterCitis = [Cities]()
     let networkServices = NetworkServices()
     var cities = [Cities]()
-    var num = Int()
+    var num = 1
     @IBOutlet weak var citiesTableView: UITableView!
     
     override func viewDidLoad() {
@@ -41,15 +41,22 @@ class CitiesListViewController: UIViewController {
             {
             case .success(let response):
                 DispatchQueue.main.async {
+                    
                     guard let response = response else {return}
-                    self.cities.append(contentsOf: response)
-                    self.citiesTableView.reloadData()
+                    //self.cities.append(contentsOf: response)
+                    //self.citiesTableView.reloadData()
+                    self.num += 1
+                    print(self.num)
+                    if ((response.count) > 0)&&self.num<50 {
+                        self.fatchResponse()
+                    }
                 }
 
             case .failure(let error):
                 print(error.localizedDescription)
             }
         })
+        print("*********************")
         
     }
     func fatchFilterdCitiys(){
@@ -68,24 +75,49 @@ extension CitiesListViewController:UITableViewDelegate,UITableViewDataSource{
         }else{
             return cities.count
         }
-        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = citiesTableView.dequeueReusableCell(withIdentifier: "CityTableViewCell", for: indexPath) as! CityTableViewCell
         if searchFilter == true{
             cell.cityName.text = filterCitis[indexPath.row].name
+            networkServices.fetchMap (coord: filterCitis[indexPath.row].coord, complation:{ result in
+                switch result
+                {
+                case .success(let response):
+                    DispatchQueue.main.async {
+                        guard let response = response else {return}
+                        cell.mapImage.image = response
+                    }
 
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            })
         }else{
             cell.cityName.text = cities[indexPath.row].name
+            networkServices.fetchMap (coord: cities[indexPath.row].coord, complation:{ result in
+                switch result
+                {
+                case .success(let response):
+                    DispatchQueue.main.async {
+                        guard let response = response else {return}
+                        cell.mapImage.image = response
+                    }
+
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            })
         }
-        
-        
         return cell
     }
+    
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
     }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if searchFilter == true{
             let lastElement = filterCitis.count-1
@@ -99,10 +131,23 @@ extension CitiesListViewController:UITableViewDelegate,UITableViewDataSource{
         let lastElement = cities.count-1
         if lastElement == indexPath.row{
             num += 1
-            print(DataManager.sharedInstance.retrieveSavedUsers()!)
             fatchResponse()
         }
        }
+    }
+    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let mapVC = self.storyboard?.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
+        if searchFilter == true{
+            mapVC.coord = filterCitis[indexPath.row].coord
+            mapVC.cityName=filterCitis[indexPath.row].name
+        }else{
+            mapVC.coord = cities[indexPath.row].coord
+            mapVC.cityName=cities[indexPath.row].name
+        }
+        self.navigationController?.pushViewController(mapVC, animated: true)
+
     }
 }
 extension CitiesListViewController:UISearchBarDelegate{
@@ -115,8 +160,6 @@ extension CitiesListViewController:UISearchBarDelegate{
             searchFilter = true
             fatchFilterdCitiys()
         }
-      
-
     }
 }
 

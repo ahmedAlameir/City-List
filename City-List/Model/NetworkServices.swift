@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class NetworkServices{
     func fetchCities(pageNum:Int,complation:@escaping(Result<[Cities]?,Error>)->Void) {
@@ -26,6 +27,24 @@ class NetworkServices{
                       }catch{
                         complation(.failure(error))
                           print(error.localizedDescription)
+                      }
+              }
+                 task.resume()
+    }
+    func fetchMap(coord:Coord,complation:@escaping(Result<UIImage?,Error>)->Void) {
+        guard let url = URL(string: "https://maps.googleapis.com/maps/api/staticmap?center=\(coord.lat),\(coord.lon)&zoom=12&size=150x150&key=AIzaSyChlfJDKyo_A6V-ZVMSVGBwzOkYM_gw_d4")else{
+            return
+        }
+        let request = URLRequest(url: url)
+                  let task = URLSession.shared.dataTask(with: request) { (data, _, erorr) in
+                      if let data = data{
+                          let result = UIImage(data: data)
+                          complation(.success(result))
+                      } else{
+                          return
+                      }
+                      if let erorr = erorr {
+                          complation(.failure(erorr))
                       }
               }
                  task.resume()
