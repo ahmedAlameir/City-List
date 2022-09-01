@@ -34,14 +34,12 @@ class DataManager{
         }
     }
     func retrieveSavedUsers(from:Int,to:Int) -> [Cities]? {
-        print(from,to)
         guard let managedContext = getContext() else { return nil }
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "City")
         request.returnsObjectsAsFaults = false
         var retrievedUCities: [Cities] = []
         do {
             let results = try managedContext.fetch(request) as! [NSManagedObject]
-            print(results.count)
             if !results.isEmpty {
                 if results.count <= from{
                     
@@ -91,23 +89,4 @@ class DataManager{
             print(error.localizedDescription)
         }
     }
-//    func retrievePageNum() -> Int? {
-//        guard let managedContext = getContext() else { return nil }
-//        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "City")
-//        request.returnsObjectsAsFaults = false
-//        var pageNum: Int = 0
-//        do {
-//            let results = try managedContext.fetch(request)
-//            if !results.isEmpty {
-//                for result in results as! [NSManagedObject] {
-//
-//                    guard let num = result.value(forKey: "num") as? Int else { return nil }
-//                    pageNum = num
-//                }
-//            }
-//        } catch {
-//            print("Error retrieving: \(error)")
-//        }
-//        return pageNum
-//    }
 }

@@ -20,6 +20,8 @@ class CitiesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         //DataManager.sharedInstance.deleatAll()
+        self.citiesTableView.separatorStyle = UITableViewCell.SeparatorStyle.none
+
         if DataManager.sharedInstance.retrieveSavedUsers(from: 0, to: 50)!.count == 0{
             fatchResponse()
         }
@@ -162,13 +164,23 @@ extension CitiesListViewController:UITableViewDelegate,UITableViewDataSource{
         self.navigationController?.pushViewController(mapVC, animated: true)
 
     }
+    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
+        let cell = citiesTableView.cellForRow(at: indexPath) as! CityTableViewCell
+        cell.backgroundColor = UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+    }
+    func tableView(_ tableView: UITableView, didUnhighlightRowAt indexPath: IndexPath) {
+        let cell = citiesTableView.cellForRow(at: indexPath) as! CityTableViewCell
+        cell.backgroundColor = UIColor(red: 1, green: 1, blue:1, alpha: 1)
+    }
 }
 extension CitiesListViewController:UISearchBarDelegate{
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         self.searchText = searchText
         if searchText.isEmpty{
             searchFilter = false
+            
             filterCitis.removeAll()
+            citiesTableView.reloadData()
         }else{
             searchFilter = true
             fatchFilterdCitiys()
